@@ -2,6 +2,10 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include QMK_KEYBOARD_H
 
+#if defined(RGB_MATRIX_ENABLE) && defined(ENABLE_RGB_MATRIX_CUSTOM_HEATMAP)
+void process_rgb_matrix_custom_typing_heatmap(uint8_t row, uint8_t col);
+#endif
+
 enum sofle_layers {
     /* _M_XYZ = Mac Os, _W_XYZ = Win/Linux */
     _QWERTY,
@@ -210,9 +214,25 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             break;
     }
+
+    // Handle custom typing heatmap effect
+#if defined(RGB_MATRIX_ENABLE) && defined(ENABLE_RGB_MATRIX_CUSTOM_HEATMAP)
+    if (record->event.pressed) {
+        process_rgb_matrix_custom_typing_heatmap(
+            record->event.key.row,
+            record->event.key.col
+        );
+    }
+#endif
     return true;
 }
 
+// Set the custom typing heatmap effect as the default effect when the keyboard starts up.
+void keyboard_post_init_user(void) {
+#if defined(RGB_MATRIX_ENABLE) && defined(ENABLE_RGB_MATRIX_CUSTOM_HEATMAP)
+    rgb_matrix_mode(RGB_MATRIX_CUSTOM_CUSTOM_TYPING_HEATMAP);
+#endif
+}
 
 /* Copyright 2021 Carlos Martins
  *

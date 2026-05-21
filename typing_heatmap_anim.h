@@ -1,5 +1,5 @@
-#if defined(RGB_MATRIX_FRAMEBUFFER_EFFECTS) && defined(ENABLE_RGB_MATRIX_TYPING_HEATMAP)
-RGB_MATRIX_EFFECT(TYPING_HEATMAP)
+#if defined(RGB_MATRIX_FRAMEBUFFER_EFFECTS) && defined(ENABLE_RGB_MATRIX_CUSTOM_HEATMAP)
+RGB_MATRIX_EFFECT(CUSTOM_TYPING_HEATMAP)
 #    ifdef RGB_MATRIX_CUSTOM_EFFECT_IMPLS
 #        ifndef RGB_MATRIX_TYPING_HEATMAP_INCREASE_STEP
 #            define RGB_MATRIX_TYPING_HEATMAP_INCREASE_STEP 32
@@ -16,7 +16,7 @@ RGB_MATRIX_EFFECT(TYPING_HEATMAP)
 #        ifndef RGB_MATRIX_TYPING_HEATMAP_AREA_LIMIT
 #            define RGB_MATRIX_TYPING_HEATMAP_AREA_LIMIT 16
 #        endif
-void process_rgb_matrix_typing_heatmap(uint8_t row, uint8_t col) {
+void process_rgb_matrix_custom_typing_heatmap(uint8_t row, uint8_t col) {
 #        ifdef RGB_MATRIX_TYPING_HEATMAP_SLIM
     // Limit effect to pressed keys
     g_rgb_frame_buffer[row][col] = qadd8(g_rgb_frame_buffer[row][col], RGB_MATRIX_TYPING_HEATMAP_INCREASE_STEP);
@@ -53,7 +53,7 @@ static uint16_t heatmap_decrease_timer;
 // Whether we should decrement the heatmap values during the next update.
 static bool decrease_heatmap_values;
 
-bool TYPING_HEATMAP(effect_params_t* params) {
+bool CUSTOM_TYPING_HEATMAP(effect_params_t* params) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
 
     if (params->init) {
@@ -97,4 +97,4 @@ bool TYPING_HEATMAP(effect_params_t* params) {
 }
 
 #    endif // RGB_MATRIX_CUSTOM_EFFECT_IMPLS
-#endif     // defined(RGB_MATRIX_FRAMEBUFFER_EFFECTS) && defined(ENABLE_RGB_MATRIX_TYPING_HEATMAP)
+#endif     // defined(RGB_MATRIX_FRAMEBUFFER_EFFECTS) && defined(ENABLE_RGB_MATRIX_CUSTOM_HEATMAP)
