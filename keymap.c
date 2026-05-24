@@ -2,10 +2,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include QMK_KEYBOARD_H
 
-#if defined(RGB_MATRIX_ENABLE) && defined(ENABLE_RGB_MATRIX_CUSTOM_HEATMAP)
-void process_rgb_matrix_custom_typing_heatmap(uint8_t row, uint8_t col);
-#endif
-
 enum sofle_layers {
     /* _M_XYZ = Mac Os, _W_XYZ = Win/Linux */
     _QWERTY,
@@ -137,6 +133,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   )
 };
 
+#if defined(ENCODER_MAP_ENABLE)
+const uint16_t PROGMEM encoder_map[DYNAMIC_KEYMAP_LAYER_COUNT][NUM_ENCODERS][NUM_DIRECTIONS] = {
+    [_QWERTY]  = { ENCODER_CCW_CW(KC_KB_VOLUME_DOWN, KC_KB_VOLUME_UP), ENCODER_CCW_CW(KC_PGDN, KC_PGUP) },
+    [_COLEMAK] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU), ENCODER_CCW_CW(KC_PGDN, KC_PGUP) },
+    [_LOWER]   = { ENCODER_CCW_CW(RM_VALD, RM_VALU), ENCODER_CCW_CW(RM_HUED, RM_HUEU) },
+    [_RAISE]   = { ENCODER_CCW_CW(KC_LEFT, KC_RGHT), ENCODER_CCW_CW(KC_DOWN, KC_UP) },
+    [_ADJUST]  = { ENCODER_CCW_CW(KC_MPRV, KC_MNXT), ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
+};
+#endif
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case KC_PRVWD:
@@ -215,24 +221,31 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
     }
 
-    // Handle custom typing heatmap effect
-#if defined(RGB_MATRIX_ENABLE) && defined(ENABLE_RGB_MATRIX_CUSTOM_HEATMAP)
-    if (record->event.pressed) {
-        process_rgb_matrix_custom_typing_heatmap(
-            record->event.key.row,
-            record->event.key.col
-        );
-    }
-#endif
     return true;
 }
 
-// Set the custom typing heatmap effect as the default effect when the keyboard starts up.
-void keyboard_post_init_user(void) {
-#if defined(RGB_MATRIX_ENABLE) && defined(ENABLE_RGB_MATRIX_CUSTOM_HEATMAP)
-    rgb_matrix_mode(RGB_MATRIX_CUSTOM_CUSTOM_TYPING_HEATMAP);
-#endif
+// Custom heatmap color formula - overrides the built-in render output.
+// Runs independently on each half, so both sides display correctly.
+// To change the color mapping, edit this function and typing_heatmap_anim.h.
+#if defined(RGB_MATRIX_ENABLE) && defined(ENABLE_RGB_MATRIX_TYPING_HEATMAP)
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    if (rgb_matrix_config.mode == RGB_MATRIX_TYPING_HEATMAP) {
+        for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+            for (uint8_t col = 0; col < MATRIX_COLS; col++) {
+                uint8_t idx = g_led_config.matrix_co[row][col];
+                if (idx != NO_LED && idx >= led_min && idx < led_max) {
+                    uint8_t val = g_rgb_frame_buffer[row][col];
+                    uint8_t hue = 1 + (val > 20 ? val - 20 : 0);
+                    hsv_t hsv = {hue, rgb_matrix_config.hsv.s, 155};
+                    rgb_t rgb = hsv_to_rgb(hsv);
+                    rgb_matrix_set_color(idx, rgb.r, rgb.g, rgb.b);
+                }
+            }
+        }
+    }
+    return false;
 }
+#endif
 
 /* Copyright 2021 Carlos Martins
  *
