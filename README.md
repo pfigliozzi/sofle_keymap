@@ -9,3 +9,9 @@ Features:
 - Modes for Mac vs Linux/Win support -> different order of modifiers and different action shortcuts on the "UPPER" layer (the red one in the image). Designed to simplify transtions when switching between operating systems often.
 - The OLED on master half shows selected mode and caps lock state and is rotated.
 - Left encoder controls volume up/down/mute. Right encoder PGUP/PGDOWN.
+
+VIA mouse speed:
+
+- The firmware now exposes cursor `MOUSEKEY_MAX_SPEED` as a VIA custom value.
+- Import `sofle_via_mouse_speed.json` into VIA to get a **Mouse -> Cursor -> Max speed** slider.
+- The value is stored in VIA's custom EEPROM area, so it persists across reboots.

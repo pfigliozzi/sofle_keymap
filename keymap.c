@@ -2,14 +2,63 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include QMK_KEYBOARD_H
 
+#if defined(VIA_ENABLE)
+#    include "via.h"
+#    include "dynamic_keymap.h"
+#endif
+
+#if defined(MOUSEKEY_ENABLE)
+#    include "mousekey.h"
+#endif
+
 enum sofle_layers {
-    /* _M_XYZ = Mac Os, _W_XYZ = Win/Linux */
-    _QWERTY,
-    _COLEMAK,
-    _LOWER,
-    _RAISE,
+    _BASE,
+    _MOUSE,
+    _SYMBOLS,
+    _NAV,
     _ADJUST,
 };
+
+// Home-row mod aliases (tap = letter, hold = modifier)
+#define HRM_S LCTL_T(KC_S)
+#define HRM_D LGUI_T(KC_D)
+#define HRM_F LALT_T(KC_F)
+#define HRM_J MT(MOD_LALT | MOD_RALT, KC_J)
+#define HRM_K MT(MOD_LGUI | MOD_RGUI, KC_K)
+#define HRM_L MT(MOD_LCTL | MOD_RCTL, KC_L)
+
+#if defined(VIA_ENABLE) && defined(MOUSEKEY_ENABLE)
+enum sofle_via_value_ids {
+    SOFLE_VIA_MOUSEKEY_MAX_SPEED = 1,
+};
+
+typedef struct {
+    uint8_t mousekey_max_speed;
+} sofle_via_config_t;
+
+static sofle_via_config_t sofle_via_config;
+
+static uint8_t sofle_clamp_mousekey_speed(uint8_t speed) {
+    if (speed == 0) {
+        return 1;
+    }
+
+    return speed > MOUSEKEY_MOVE_MAX ? MOUSEKEY_MOVE_MAX : speed;
+}
+
+static void sofle_apply_mousekey_speed(uint8_t speed) {
+    sofle_via_config.mousekey_max_speed = sofle_clamp_mousekey_speed(speed);
+    mk_max_speed                        = sofle_via_config.mousekey_max_speed;
+}
+
+static void sofle_load_via_mousekey_config(void) {
+    via_read_custom_config(&sofle_via_config, 0, sizeof(sofle_via_config));
+    sofle_apply_mousekey_speed(sofle_via_config.mousekey_max_speed);
+}
+
+static void sofle_save_via_mousekey_config(void) {
+    via_update_custom_config(&sofle_via_config, 0, sizeof(sofle_via_config));
+}
 
 void via_init_kb(void) {
     if (via_eeprom_is_valid()) {

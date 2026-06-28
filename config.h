@@ -26,6 +26,9 @@
 
 #define CUSTOM_LAYER_READ //if you remove this it causes issues - needs better guarding
 #define DYNAMIC_KEYMAP_LAYER_COUNT 5
+#define MOUSEKEY_MAX_SPEED 10
+#define VIA_EEPROM_CUSTOM_CONFIG_SIZE 5  // 1 byte mouse speed + 4 bytes firmware version
+#define VIA_FIRMWARE_VERSION 0x00000002
 
 #define QUICK_TAP_TERM 0
 #ifdef TAPPING_TERM
@@ -128,4 +131,3 @@
  #undef RGB_MATRIX_DEFAULT_MODE
  #define RGB_MATRIX_DEFAULT_MODE RGB_MATRIX_TYPING_HEATMAP
 #endif
-
